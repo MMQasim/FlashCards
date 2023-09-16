@@ -5,6 +5,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import Home from "./Screens/Home";
 import Topic from "./Screens/Topic";
+import Stats from "./Screens/Stats";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
@@ -14,6 +15,7 @@ export default function App() {
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Topic" component={Topic} />
+          <Stack.Screen name="Stats" component={Stats} />
         </Stack.Navigator>
       </NavigationContainer>
       {/* <StatusBar style={theme.light_mode.status_bar} translucent={false} />

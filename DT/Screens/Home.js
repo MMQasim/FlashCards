@@ -28,7 +28,7 @@ const Home = ({ navigation }) => {
             <Text>library section</Text>
           </View>
         </View>
-        <NavBar></NavBar>
+        <NavBar navigation={navigation} active_index={3}></NavBar>
       </View>
     </>
   );
