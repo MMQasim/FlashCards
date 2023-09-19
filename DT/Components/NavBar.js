@@ -14,7 +14,11 @@ const NavBar = (props) => {
   return (
     <View style={styles.nav_container} onLayout={this.onLayout}>
       <Pressable
-        style={styles.nav_items}
+        style={
+          props.active_index == 1
+            ? { ...styles.nav_items, ...styles.selected }
+            : styles.nav_items
+        }
         onPress={() => props.navigation.navigate("Topic")}
       >
         <Ionicons
@@ -28,7 +32,11 @@ const NavBar = (props) => {
         />
       </Pressable>
       <Pressable
-        style={styles.nav_items}
+        style={
+          props.active_index == 2
+            ? { ...styles.nav_items, ...styles.selected }
+            : styles.nav_items
+        }
         onPress={() => props.navigation.navigate("Stats")}
       >
         <Ionicons
@@ -42,7 +50,11 @@ const NavBar = (props) => {
         />
       </Pressable>
       <Pressable
-        style={styles.nav_items}
+        style={
+          props.active_index == 3
+            ? { ...styles.nav_items, ...styles.selected }
+            : styles.nav_items
+        }
         onPress={() => props.navigation.navigate("Home")}
       >
         <Ionicons
@@ -73,9 +85,16 @@ const styles = StyleSheet.create({
   nav_items: {
     flex: 1,
     alignItems: "center",
+    padding: 5,
   },
   icon: {
     color: "white",
     shadowColor: "white",
+  },
+  selected: {
+    borderBottomWidth: 2,
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5,
+    borderBottomColor: theme.light_mode.bg_light,
   },
 });

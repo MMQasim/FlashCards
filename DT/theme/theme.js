@@ -5,4 +5,10 @@ export default {
     bg_normal: "#ffffff",
     status_bar: "dark",
   },
+  main_container: {
+    backgroundColor: "transparnt",
+    paddingHorizontal: 20,
+    paddingTop: 30,
+    height: "90%",
+  },
 };
