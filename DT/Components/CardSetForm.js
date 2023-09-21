@@ -1,8 +1,13 @@
 import { StyleSheet, Text, TextInput, View, Pressable } from "react-native";
 import { React, useState } from "react";
 import theme from "../theme/theme";
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from "uuid";
+import * as SQLite from "expo-sqlite";
+import conf from "../conf";
 
 const CardSetForm = ({ handleShowModal }) => {
+  const DB = SQLite.openDatabase(conf.LocalDB);
   const [nameState, setNameState] = useState("");
   const [categoryState, setCategoryState] = useState("");
   const [descriptionState, setDescriptionState] = useState("");
@@ -16,9 +21,42 @@ const CardSetForm = ({ handleShowModal }) => {
   const handleDescriptionChange = (text) => {
     setDescriptionState(text);
   };
+  const insertCardSet = (name, category, detail) => {
+    const uuid = uuidv4();
+    DB.transaction((tx) => {
+      tx.executeSql(
+        "INSERT INTO CardSet (uuid, Name, Category, Detail) VALUES (?, ?, ?, ?)",
+        [uuid, name, category, detail],
+        (txtObj, resObj) => {
+          console.log(resObj);
+
+          handleShowModal();
+        }
+      ),
+        (txtObj, errorObj) => console.log(errorObj);
+    });
+  };
+
+  function doesNotContainSpecialCharacters(inputString) {
+    const pattern = /^[a-zA-Z0-9_ ]+$/;
+    return pattern.test(inputString);
+  }
 
   const handleSubmitEvent = () => {
-    console.log("need to implement submit action");
+    if (
+      nameState.trim() !== "" &&
+      doesNotContainSpecialCharacters(nameState.trim()) &&
+      doesNotContainSpecialCharacters(categoryState.trim()) &&
+      doesNotContainSpecialCharacters(descriptionState.trim())
+    ) {
+      insertCardSet(
+        nameState.trim(),
+        categoryState.trim(),
+        descriptionState.trim()
+      );
+    } else {
+      console.log("error in input fileds ");
+    }
   };
 
   return (

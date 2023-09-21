@@ -1,14 +1,32 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Button } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
+import * as SQLite from "expo-sqlite";
+import { useEffect, useState } from "react";
 import Home from "./Screens/Home";
 import Topic from "./Screens/Topic";
 import Stats from "./Screens/Stats";
+import { Modal, Text } from "react-native";
+import conf from "./conf";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
+
+  useEffect(() => {
+    const DB = SQLite.openDatabase(conf.LocalDB);
+    DB.transaction((tx) =>
+      tx.executeSql(
+        "CREATE TABLE IF NOT EXISTS CardSet(uuid TEXT PRIMARY KEY,Name TEXT,Category TEXT,Detail TEXT )",
+        null,
+        (txtObj, resObj) => {
+          console.log("CardSet Table ready");
+        },
+        (txtObj, error) => {
+          console.log(error);
+        }
+      )
+    );
+  }, []);
+
   return (
     <>
       <NavigationContainer>
