@@ -56,7 +56,7 @@ const Home = ({ navigation }) => {
   const onDeleteHandler = (id) => {
     DB.transaction((tx) => {
       tx.executeSql(
-        "DELETE FROM CardSeet WHERE uuid = ?",
+        "DELETE FROM CardSet WHERE uuid = ?",
         [id],
         (txtObj, resObj) => {
           setCards((prevState) => {
@@ -81,6 +81,13 @@ const Home = ({ navigation }) => {
           <Heading text={"Flash Cards"} />
           <SearchBar search={(value) => console.log("search for : " + value)} />
           <View style={{ flex: 1 }}>
+            {cards.length == 0 ? (
+              <View>
+                <Text>Your Card Set Is Empty, Please Add Card Set.</Text>
+              </View>
+            ) : (
+              <></>
+            )}
             <FlatList
               data={cards}
               renderItem={(itemData) => {
