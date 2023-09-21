@@ -1,11 +1,4 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  Modal,
-  ScrollView,
-  FlatList,
-} from "react-native";
+import { StyleSheet, Text, View, Modal, FlatList } from "react-native";
 import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import theme from "../theme/theme";

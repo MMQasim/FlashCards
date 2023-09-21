@@ -19,7 +19,7 @@ const NavBar = (props) => {
             ? { ...styles.nav_items, ...styles.selected }
             : styles.nav_items
         }
-        onPress={() => props.navigation.navigate("Topic")}
+        onPress={() => props.navigation.navigate("FlashTest")}
       >
         <Ionicons
           name="book"

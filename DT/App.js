@@ -7,24 +7,34 @@ import Topic from "./Screens/Topic";
 import Stats from "./Screens/Stats";
 import { Modal, Text } from "react-native";
 import conf from "./conf";
+import FlashTest from "./Screens/FlashTest";
 
 export default function App() {
   const Stack = createNativeStackNavigator();
 
-  useEffect(() => {
+  const createTable = (query) => {
     const DB = SQLite.openDatabase(conf.LocalDB);
     DB.transaction((tx) =>
       tx.executeSql(
-        "CREATE TABLE IF NOT EXISTS CardSet(uuid TEXT PRIMARY KEY,Name TEXT,Category TEXT,Detail TEXT )",
+        query,
         null,
         (txtObj, resObj) => {
-          console.log("CardSet Table ready");
+          console.log("Table ready");
         },
         (txtObj, error) => {
           console.log(error);
         }
       )
     );
+  };
+
+  useEffect(() => {
+    const cardSetQuery =
+      "CREATE TABLE IF NOT EXISTS CardSet(uuid TEXT PRIMARY KEY,Name TEXT,Category TEXT,Detail TEXT )";
+    const cardQuery =
+      "CREATE TABLE IF NOT EXISTS Card(uuid TEXT PRIMARY KEY,FrontText TEXT,FrontImg TEXT,BackText TEXT,BackImg TEXT ,CardSetUuid Text,FOREIGN KEY (CardSetUuid) REFERENCES CardSet (uuid))";
+    createTable(cardSetQuery);
+    createTable(cardQuery);
   }, []);
 
   return (
@@ -33,6 +43,7 @@ export default function App() {
         <Stack.Navigator initialRouteName="Home">
           <Stack.Screen name="Home" component={Home} />
           <Stack.Screen name="Topic" component={Topic} />
+          <Stack.Screen name="FlashTest" component={FlashTest} />
           <Stack.Screen name="Stats" component={Stats} />
         </Stack.Navigator>
       </NavigationContainer>

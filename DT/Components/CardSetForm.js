@@ -31,9 +31,11 @@ const CardSetForm = ({ handleShowModal }) => {
           console.log(resObj);
 
           handleShowModal();
+        },
+        (txtObj, errorObj) => {
+          console.log(errorObj);
         }
-      ),
-        (txtObj, errorObj) => console.log(errorObj);
+      );
     });
   };
 

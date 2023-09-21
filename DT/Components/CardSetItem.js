@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
   title_box: {
     backgroundColor: theme.light_mode.bg_dark,
     minWidth: 60,
+    maxWidth: 100,
     paddingHorizontal: 10,
     paddingVertical: 5,
   },
