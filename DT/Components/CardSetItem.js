@@ -12,7 +12,7 @@ const CardSetItem = ({
   onClickAction,
 }) => {
   return (
-    <Pressable style={styles.outer}>
+    <Pressable style={styles.outer} onPress={onClickAction}>
       <View style={styles.title_box}>
         <Text style={styles.title}>{name}</Text>
         <Text style={styles.type}>{category}</Text>

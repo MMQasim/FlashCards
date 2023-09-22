@@ -10,6 +10,7 @@ import CardSetForm from "../Components/CardSetForm";
 import CardSetItem from "../Components/CardSetItem";
 import * as SQLite from "expo-sqlite";
 import conf from "../conf";
+import EmptyNote from "../Components/EmptyNote";
 
 const Home = ({ navigation }) => {
   const DB = SQLite.openDatabase(conf.LocalDB);
@@ -75,9 +76,9 @@ const Home = ({ navigation }) => {
           <SearchBar search={(value) => console.log("search for : " + value)} />
           <View style={{ flex: 1 }}>
             {cards.length == 0 ? (
-              <View>
-                <Text>Your Card Set Is Empty, Please Add Card Set.</Text>
-              </View>
+              <EmptyNote
+                text={"Your Card Set Is Empty, Please Add Card Set."}
+              />
             ) : (
               <></>
             )}
@@ -90,6 +91,12 @@ const Home = ({ navigation }) => {
                     category={itemData.item.Category}
                     detail={itemData.item.Detail}
                     onDeleteAction={() => onDeleteHandler(itemData.item.uuid)}
+                    onClickAction={() =>
+                      navigation.navigate("Topic", {
+                        cardSetId: itemData.item.uuid,
+                        cardSetName: itemData.item.Name,
+                      })
+                    }
                   />
                 );
               }}
