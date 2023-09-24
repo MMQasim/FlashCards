@@ -33,6 +33,7 @@ const Home = ({ navigation }) => {
       );
     });
   };
+
   useEffect(() => {
     getCardSetFromDb();
   }, []);

@@ -1,9 +1,108 @@
-import { StyleSheet, Text, View, TextInput, Pressable } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Pressable,
+  PermissionsAndroid,
+  Alert,
+} from "react-native";
 import React from "react";
 import { useState } from "react";
 import theme from "../theme/theme";
-import { Ionicons, AntDesign } from "@expo/vector-icons";
+import { Ionicons, AntDesign, MaterialIcons } from "@expo/vector-icons";
+import * as SQLite from "expo-sqlite";
+import conf from "../conf";
+import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+
 const CardForm = ({ onClose }) => {
+  const DB = SQLite.openDatabase(conf.LocalDB);
+  const [frontTextState, setFrontTextState] = useState("");
+  const [backTextState, setBackTextState] = useState("");
+
+  const handleFrontTextChange = (text) => {
+    setFrontTextState(text);
+  };
+  const handleBackTextChange = (text) => {
+    setBackTextState(text);
+  };
+  const checkPermitions = async () => {
+    try {
+      const allowed = await PermissionsAndroid.check(
+        PermissionsAndroid.PERMISSIONS.CAMERA
+        // PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        // PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      );
+      console.log(allowed);
+
+      if (
+        allowed === PermissionsAndroid.RESULTS.GRANTED
+        // && allowed[PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE] ===
+        //   PermissionsAndroid.RESULTS.GRANTED &&
+        // allowed[PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE] ===
+        //   PermissionsAndroid.RESULTS.GRANTED
+      ) {
+        return true;
+      } else {
+        console.log("it is err");
+        if (allowed !== PermissionsAndroid.RESULTS.GRANTED) {
+          Alert.alert("CAMERA", "CAMERA ACCRESS DENIED", [
+            { text: "OK", onPress: () => console.log("OK Pressed") },
+          ]);
+        }
+        // if (
+        //   allowed[PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE] !==
+        //   PermissionsAndroid.RESULTS.GRANTED
+        // ) {
+        //   Alert.alert("READ", "READ ACCRESS DENIED", [
+        //     { text: "OK", onPress: () => console.log("OK Pressed") },
+        //   ]);
+        // }
+        // if (
+        //   allowed[PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE] !==
+        //   PermissionsAndroid.RESULTS.GRANTED
+        // ) {
+        //   Alert.alert("WRITE", "WRITE ACCRESS DENIED", [
+        //     { text: "OK", onPress: () => console.log("OK Pressed") },
+        //   ]);
+        // }
+        return false;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getPermitions = async () => {
+    try {
+      const allo = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.CAMERA
+        // PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+        // PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+      );
+      if (allo === PermissionsAndroid.RESULTS.GRANTED) {
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.log("ok");
+    }
+  };
+
+  const handleOpenCamera = async () => {
+    const re = await getPermitions();
+    try {
+      const granted = await checkPermitions();
+      console.log(granted);
+      if (granted) {
+        console.log(granted);
+      } else {
+        console.log(granted);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
   return (
     <View style={styles.outer_container}>
       <Pressable onPress={onClose}>
@@ -19,12 +118,20 @@ const CardForm = ({ onClose }) => {
 
       <View style={styles.outer_input_container}>
         <View style={styles.display}>
-          <Text>Text view</Text>
           <Text>Image view</Text>
+          <Text>{frontTextState}</Text>
         </View>
         <View style={styles.input_container}>
-          <TextInput placeholder="Add text " style={styles.textInput} />
+          <TextInput
+            placeholder="Add text "
+            value={frontTextState}
+            style={styles.textInput}
+            onChangeText={handleFrontTextChange}
+          />
           <Pressable>
+            <MaterialIcons name="photo-library" size={24} color="black" />
+          </Pressable>
+          <Pressable onPress={handleOpenCamera}>
             <Ionicons name="md-camera-outline" size={30} color="black" />
           </Pressable>
         </View>
@@ -32,11 +139,20 @@ const CardForm = ({ onClose }) => {
       <Text style={styles.title_text}>Back Section</Text>
       <View style={styles.outer_input_container}>
         <View style={styles.display}>
-          <Text>Text view</Text>
           <Text>Image view</Text>
+          <Text>{backTextState}</Text>
         </View>
         <View style={styles.input_container}>
-          <TextInput placeholder="Add text " style={styles.textInput} />
+          <TextInput
+            placeholder="Add text "
+            value={backTextState}
+            onChangeText={() => handleBackTextChange()}
+            style={styles.textInput}
+          />
+          <Pressable>
+            <MaterialIcons name="photo-library" size={24} color="black" />
+          </Pressable>
+
           <Pressable>
             <Ionicons name="md-camera-outline" size={30} color="black" />
           </Pressable>
