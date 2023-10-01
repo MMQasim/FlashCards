@@ -12,7 +12,6 @@ const Camera = async (cam) => {
   let result;
   if (!cam) {
     result = await ImagePicker.launchImageLibraryAsync(options);
-    console.log(result);
     if (!result.canceled) {
       return result.assets[0].uri;
     }
@@ -22,7 +21,6 @@ const Camera = async (cam) => {
     console.log(permission);
     if (permission.status !== "denied") {
       result = await ImagePicker.launchCameraAsync(options);
-      console.log(result);
       if (!result.canceled) {
         return result.assets[0].uri;
       }
