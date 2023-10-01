@@ -4,8 +4,7 @@ import {
   View,
   TextInput,
   Pressable,
-  PermissionsAndroid,
-  Alert,
+  Image,
 } from "react-native";
 import React from "react";
 import { useState } from "react";
@@ -13,96 +12,50 @@ import theme from "../theme/theme";
 import { Ionicons, AntDesign, MaterialIcons } from "@expo/vector-icons";
 import * as SQLite from "expo-sqlite";
 import conf from "../conf";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import Camera from "../Tools/Camera";
 
 const CardForm = ({ onClose }) => {
   const DB = SQLite.openDatabase(conf.LocalDB);
   const [frontTextState, setFrontTextState] = useState("");
+  const [frontTextErrorState, setFrontTextErrorState] = useState(false);
+  const [frontImgState, setFrontImgState] = useState("");
   const [backTextState, setBackTextState] = useState("");
+  const [backTextErrorState, setBackTextErrorState] = useState(false);
+  const [backImgState, setBackImgState] = useState("");
 
   const handleFrontTextChange = (text) => {
     setFrontTextState(text);
+    if (notContainSpecialCharacters(text)) {
+      setFrontTextErrorState(false);
+    } else {
+      setFrontTextErrorState(true);
+    }
   };
   const handleBackTextChange = (text) => {
+    console.log(text);
     setBackTextState(text);
-  };
-  const checkPermitions = async () => {
-    try {
-      const allowed = await PermissionsAndroid.check(
-        PermissionsAndroid.PERMISSIONS.CAMERA
-        // PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        // PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      );
-      console.log(allowed);
-
-      if (
-        allowed === PermissionsAndroid.RESULTS.GRANTED
-        // && allowed[PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE] ===
-        //   PermissionsAndroid.RESULTS.GRANTED &&
-        // allowed[PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE] ===
-        //   PermissionsAndroid.RESULTS.GRANTED
-      ) {
-        return true;
-      } else {
-        console.log("it is err");
-        if (allowed !== PermissionsAndroid.RESULTS.GRANTED) {
-          Alert.alert("CAMERA", "CAMERA ACCRESS DENIED", [
-            { text: "OK", onPress: () => console.log("OK Pressed") },
-          ]);
-        }
-        // if (
-        //   allowed[PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE] !==
-        //   PermissionsAndroid.RESULTS.GRANTED
-        // ) {
-        //   Alert.alert("READ", "READ ACCRESS DENIED", [
-        //     { text: "OK", onPress: () => console.log("OK Pressed") },
-        //   ]);
-        // }
-        // if (
-        //   allowed[PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE] !==
-        //   PermissionsAndroid.RESULTS.GRANTED
-        // ) {
-        //   Alert.alert("WRITE", "WRITE ACCRESS DENIED", [
-        //     { text: "OK", onPress: () => console.log("OK Pressed") },
-        //   ]);
-        // }
-        return false;
-      }
-    } catch (error) {
-      console.log(error);
+    if (notContainSpecialCharacters(text)) {
+      setBackTextErrorState(false);
+    } else {
+      setBackTextErrorState(true);
     }
   };
 
-  const getPermitions = async () => {
-    try {
-      const allo = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.CAMERA
-        // PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        // PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-      );
-      if (allo === PermissionsAndroid.RESULTS.GRANTED) {
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.log("ok");
-    }
+  const handleOpenCamera = async (setState) => {
+    const imgUri = await Camera(true);
+    setState(imgUri);
   };
 
-  const handleOpenCamera = async () => {
-    const re = await getPermitions();
-    try {
-      const granted = await checkPermitions();
-      console.log(granted);
-      if (granted) {
-        console.log(granted);
-      } else {
-        console.log(granted);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
+  const handleOpenGallery = async (setState) => {
+    const imgUri = await Camera(false);
+    setState(imgUri);
   };
+
+  function notContainSpecialCharacters(inputString) {
+    const pattern = /^[^!@#$%`&*_\+\^=~:?{};'"\.>,\/<()|\-]+$/;
+    return pattern.test(inputString);
+  }
+
   return (
     <View style={styles.outer_container}>
       <Pressable onPress={onClose}>
@@ -118,43 +71,62 @@ const CardForm = ({ onClose }) => {
 
       <View style={styles.outer_input_container}>
         <View style={styles.display}>
-          <Text>Image view</Text>
-          <Text>{frontTextState}</Text>
+          <Image
+            source={
+              frontImgState === ""
+                ? require("../assets/placeholderimg.png")
+                : { uri: frontImgState }
+            }
+            style={styles.img}
+            resizeMode="contain"
+          />
         </View>
         <View style={styles.input_container}>
           <TextInput
             placeholder="Add text "
+            placeholderTextColor={theme.light_mode.bg_normal}
             value={frontTextState}
-            style={styles.textInput}
+            style={
+              frontTextErrorState ? styles.errorTextInput : styles.textInput
+            }
             onChangeText={handleFrontTextChange}
           />
-          <Pressable>
-            <MaterialIcons name="photo-library" size={24} color="black" />
+          <Pressable onPress={() => handleOpenGallery(setFrontImgState)}>
+            <MaterialIcons name="photo-library" size={24} color="white" />
           </Pressable>
-          <Pressable onPress={handleOpenCamera}>
-            <Ionicons name="md-camera-outline" size={30} color="black" />
+          <Pressable onPress={() => handleOpenCamera(setFrontImgState)}>
+            <Ionicons name="md-camera-outline" size={30} color="white" />
           </Pressable>
         </View>
       </View>
       <Text style={styles.title_text}>Back Section</Text>
       <View style={styles.outer_input_container}>
         <View style={styles.display}>
-          <Text>Image view</Text>
-          <Text>{backTextState}</Text>
+          <Image
+            source={
+              backImgState === ""
+                ? require("../assets/placeholderimg.png")
+                : { uri: backImgState }
+            }
+            style={styles.img}
+            resizeMode="contain"
+          />
         </View>
         <View style={styles.input_container}>
           <TextInput
             placeholder="Add text "
+            placeholderTextColor={theme.light_mode.bg_normal}
             value={backTextState}
-            onChangeText={() => handleBackTextChange()}
-            style={styles.textInput}
+            onChangeText={handleBackTextChange}
+            style={
+              backTextErrorState ? styles.errorTextInput : styles.textInput
+            }
           />
-          <Pressable>
-            <MaterialIcons name="photo-library" size={24} color="black" />
+          <Pressable onPress={() => handleOpenGallery(setBackImgState)}>
+            <MaterialIcons name="photo-library" size={24} color="white" />
           </Pressable>
-
-          <Pressable>
-            <Ionicons name="md-camera-outline" size={30} color="black" />
+          <Pressable onPress={() => handleOpenCamera(setBackImgState)}>
+            <Ionicons name="md-camera-outline" size={30} color="white" />
           </Pressable>
         </View>
       </View>
@@ -194,24 +166,38 @@ const styles = StyleSheet.create({
   },
   display: {
     height: "80%",
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: theme.light_mode.bg_normal,
     borderTopRightRadius: 15,
     borderTopLeftRadius: 15,
+    alignItems: "center",
   },
   input_container: {
     height: "20%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: theme.light_mode.bg_dark,
+    borderBottomLeftRadius: 13,
+    borderBottomRightRadius: 13,
   },
   textInput: {
     flex: 1 / 2,
     fontSize: 18,
     borderBottomWidth: 1,
+    borderBottomColor: theme.light_mode.bg_normal,
     marginHorizontal: 5,
+    color: theme.light_mode.bg_normal,
   },
+  errorTextInput: {
+    flex: 1 / 2,
+    fontSize: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: "pink",
+    marginHorizontal: 5,
+    color: "pink",
+    fontWeight: "bold",
+  },
+
   submitBtn: {
     marginTop: 5,
     paddingHorizontal: 20,
@@ -223,5 +209,12 @@ const styles = StyleSheet.create({
   submitText: {
     color: theme.light_mode.bg_normal,
     fontSize: 16,
+  },
+
+  img: {
+    width: "100%",
+    height: "100%",
+    borderTopRightRadius: 13,
+    borderTopLeftRadius: 13,
   },
 });

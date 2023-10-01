@@ -12,14 +12,14 @@ import FlashTest from "./Screens/FlashTest";
 export default function App() {
   const Stack = createNativeStackNavigator();
 
-  const createTable = (query) => {
+  const createTable = (query, tableName) => {
     const DB = SQLite.openDatabase(conf.LocalDB);
     DB.transaction((tx) =>
       tx.executeSql(
         query,
         null,
         (txtObj, resObj) => {
-          console.log("Table ready");
+          console.log(tableName + " Table ready");
         },
         (txtObj, error) => {
           console.log(error);
@@ -33,8 +33,8 @@ export default function App() {
       "CREATE TABLE IF NOT EXISTS CardSet(uuid TEXT PRIMARY KEY,Name TEXT,Category TEXT,Detail TEXT )";
     const cardQuery =
       "CREATE TABLE IF NOT EXISTS Card(uuid TEXT PRIMARY KEY,FrontText TEXT,FrontImg TEXT,BackText TEXT,BackImg TEXT ,CardSetUuid Text,FOREIGN KEY (CardSetUuid) REFERENCES CardSet (uuid))";
-    createTable(cardSetQuery);
-    createTable(cardQuery);
+    createTable(cardSetQuery, "CardSet");
+    createTable(cardQuery, "Card");
   }, []);
 
   return (
