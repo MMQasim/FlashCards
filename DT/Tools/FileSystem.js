@@ -14,7 +14,6 @@ const ensureDirExists = async () => {
 
 const saveFile = async (uri) => {
   await ensureDirExists();
-
   const uuid = uuidv4();
   const fileType = uri.split(".")[uri.split(".").length - 1];
   const tempFN = typeId + "-" + uuid + "." + fileType;
