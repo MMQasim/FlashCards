@@ -75,6 +75,7 @@ const Topic = ({ route, navigation }) => {
                 handleShowModal();
                 getCardFromDb();
               }}
+              typeId={cardSetId}
             />
           </Modal>
         </View>

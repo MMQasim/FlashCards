@@ -5,6 +5,7 @@ import {
   TextInput,
   Pressable,
   Image,
+  Alert,
 } from "react-native";
 import React from "react";
 import { useState } from "react";
@@ -13,8 +14,10 @@ import { Ionicons, AntDesign, MaterialIcons } from "@expo/vector-icons";
 import * as SQLite from "expo-sqlite";
 import conf from "../conf";
 import Camera from "../Tools/Camera";
+import { v4 as uuidv4 } from "uuid";
+import { ensureDirExists, imgDir } from "../Tools/FileSystem";
 
-const CardForm = ({ onClose }) => {
+const CardForm = ({ onClose, typeId }) => {
   const DB = SQLite.openDatabase(conf.LocalDB);
   const [frontTextState, setFrontTextState] = useState("");
   const [frontTextErrorState, setFrontTextErrorState] = useState(false);
@@ -55,6 +58,35 @@ const CardForm = ({ onClose }) => {
     const pattern = /^[^!@#$%`&*_\+\^=~:?{};'"\.>,\/<()|\-]+$/;
     return pattern.test(inputString);
   }
+
+  const handleFormSubmition = async () => {
+    //if text then text should not have error
+    //pic or text must be there for each side
+    //in case of pic save the pic
+    // create uuid and use it as pic name
+    //save data in db pic name and text
+    //if not sucessful remove recent saved pics
+    let frontImgName = null;
+    let backImgName = null;
+
+    if (!backTextErrorState && !frontTextErrorState) {
+      if (frontImgState.trim() !== "") {
+        const uuid = uuidv4();
+        const fileType =
+          frontImgState.split(".")[frontImgState.split(".").length - 1];
+        const tempFN = typeId + "-" + uuid + "." + fileType;
+        const desDir = imgDir + tempFN;
+
+        console.log(tempFN);
+        await ensureDirExists();
+      }
+      console.log(typeId);
+    } else {
+      Alert.alert("ERROR", "FIX ERRORS IN FORM", [
+        { text: "Close", onPress: () => console.log("Colsed") },
+      ]);
+    }
+  };
 
   return (
     <View style={styles.outer_container}>
@@ -130,7 +162,7 @@ const CardForm = ({ onClose }) => {
           </Pressable>
         </View>
       </View>
-      <Pressable style={styles.submitBtn}>
+      <Pressable style={styles.submitBtn} onPress={handleFormSubmition}>
         <Text style={styles.submitText}>SUBMIT</Text>
       </Pressable>
     </View>
