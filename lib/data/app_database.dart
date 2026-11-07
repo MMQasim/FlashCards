@@ -144,8 +144,9 @@ class AppDatabase {
     final needle = foldForSearch(query.trim());
     if (needle.isEmpty) return const [];
     final rows = await _db.rawQuery(
-      'SELECT $_cardColumns FROM content.card c '
+      'SELECT $_cardColumns, dk.name AS deck_name FROM content.card c '
       'JOIN content.note n ON n.id = c.note_id '
+      'JOIN content.deck dk ON dk.id = c.deck_id '
       'WHERE c.search LIKE ?${deckId != null ? ' AND c.deck_id = ?' : ''} '
       'ORDER BY length(c.front), c.sort_order LIMIT ?',
       ['%$needle%', if (deckId != null) deckId, limit],

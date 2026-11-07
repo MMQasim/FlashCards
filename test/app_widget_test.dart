@@ -74,7 +74,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Goethe A1 Wordlist'), findsOneWidget);
-      expect(find.text('1694 cards'), findsOneWidget);
+      expect(find.text('1660 cards'), findsOneWidget);
     });
 
     testWidgets('a fresh install says nothing is scheduled, not nothing to do',

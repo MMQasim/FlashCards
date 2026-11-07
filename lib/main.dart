@@ -4,11 +4,13 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app.dart';
 import 'data/app_database.dart';
 import 'data/content_asset.dart';
+import 'data/content_version.dart';
 import 'services/speech_service.dart';
 import 'state/library_controller.dart';
 import 'state/settings_controller.dart';
@@ -140,7 +142,8 @@ class _SplashScreen extends StatelessWidget {
               if (firstRun) ...[
                 const SizedBox(height: 6),
                 Text(
-                  'Unpacking 11,583 cards. This happens once.',
+                  'Unpacking ${NumberFormat.decimalPattern().format(bundledCardCount)}'
+                  ' cards. This happens once.',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],

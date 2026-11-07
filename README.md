@@ -2,7 +2,7 @@
 
 An offline Android flashcard app for learning German, built with Flutter.
 
-11,583 cards across 11 decks — from Goethe-Institut A1 vocabulary through to
+11,549 cards across 11 decks — from Goethe-Institut A1 vocabulary through to
 B2 professional and IT German — with spaced repetition and pronunciation from
 the device's own text-to-speech engine.
 
@@ -34,7 +34,7 @@ the device's own text-to-speech engine.
 
 | Deck | Cards | Level |
 |---|---:|---|
-| Goethe A1 Wordlist | 1,694 | A1 |
+| Goethe A1 Wordlist | 1,660 | A1 |
 | Core Vocabulary: General | 1,730 | A1–B1 |
 | Core Vocabulary: Speaking | 662 | A2–B1 |
 | Core Vocabulary: IT & Work | 1,047 | B1–B2 |

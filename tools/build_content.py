@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sqlite3
 import sys
 from collections import Counter
@@ -23,7 +24,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from anki_reader import AnkiCard, read_apkg  # noqa: E402
-from mappings import MAPPINGS, Mapping, fallback_mapping, resolve_extras  # noqa: E402
+from mappings import (  # noqa: E402
+    MAPPINGS,
+    Mapping,
+    fallback_mapping,
+    humanise_label,
+    resolve_extras,
+)
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SCHEMA_VERSION = 1
@@ -90,9 +97,35 @@ def fold(text: str) -> str:
     return text.casefold().translate(_FOLD)
 
 
+# At least one letter or digit. Some source notes use a bare ellipsis where a
+# single-word translation does not exist ("…" against "der Schluss"), which
+# produces a card whose prompt carries no information at all.
+_MEANINGFUL_RE = re.compile(r"[^\W_]", re.UNICODE)
+
+
+def is_meaningful(text: str) -> bool:
+    """Whether a card side actually says something the learner can answer."""
+    return bool(_MEANINGFUL_RE.search(text))
+
+
 def join_fields(card: AnkiCard, names: tuple[str, ...]) -> str:
+    """Join several fields into one card side, without repeating a part.
+
+    Some decks store the article both in its own field and inline in the noun
+    ("Article: die", "German: die Arbeit"). Joining those blindly produces
+    "die die Arbeit", so a part that the next one already starts with is
+    dropped.
+    """
     parts = [card.fields.get(n, "").strip() for n in names]
-    return " ".join(p for p in parts if p).strip()
+    parts = [p for p in parts if p]
+
+    kept: list[str] = []
+    for index, part in enumerate(parts):
+        following = parts[index + 1] if index + 1 < len(parts) else ""
+        if following.casefold().startswith(part.casefold() + " "):
+            continue
+        kept.append(part)
+    return " ".join(kept).strip()
 
 
 def card_uid(deck_slug: str, guid: str, ord_: int) -> str:
@@ -124,6 +157,9 @@ def build_rows(deck_cfg: dict, collection, report: Counter, unknown: set[str]) -
         if not front or not back:
             report["skipped_empty"] += 1
             continue
+        if not is_meaningful(front) or not is_meaningful(back):
+            report["skipped_placeholder"] += 1
+            continue
         if front == back:
             report["skipped_identical"] += 1
             continue
@@ -146,10 +182,15 @@ def build_rows(deck_cfg: dict, collection, report: Counter, unknown: set[str]) -
                 used.add(name)
         used |= set(mapping.speak)
 
+        # A detail that merely restates the card's own front or back is noise;
+        # "CoreMeaning: break off / discontinue" under the answer
+        # "break off / discontinue" tells the learner nothing.
+        shown = {front.casefold(), back.casefold()}
         extras = [
-            {"label": name.replace("_", " "), "value": card.fields[name]}
+            {"label": humanise_label(name), "value": card.fields[name]}
             for name in resolve_extras(mapping, card.field_order, used)
             if card.fields.get(name, "").strip()
+            and card.fields[name].strip().casefold() not in shown
         ]
 
         speak_text = join_fields(card, mapping.speak) or (

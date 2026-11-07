@@ -13,6 +13,7 @@ match the card counts in Anki.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field as dc_field
 
 DE = "de"
@@ -22,6 +23,15 @@ EN = "en"
 NOISE_FIELDS = {"Audio", "EnglishAudio", "NounAudio", "AdjectiveAudio",
                 "ComparativeAudio", "SuperlativeAudio", "Note ID", "Version",
                 "de_audio", "Set", "Priority", "VerbCount", "Stem"}
+
+# Fields deliberately never shipped, for rights reasons rather than usefulness.
+#
+# "Pages" and "BookContext" come from the Hueber textbook the source decks were
+# built against. BookContext in particular holds verbatim OCR'd sentences from
+# that book, OCR errors and page numbers included - reproducing them in a
+# published app would be redistributing copyrighted text. The generated example
+# sentences carry the same teaching value without the problem.
+EXCLUDED_FIELDS = {"Pages", "BookContext"}
 NOISE_PREFIXES = ("Audio", "AudioText")
 
 
@@ -119,7 +129,8 @@ _VERB_EXTRAS = (
     "Present", "Preterite", "ParticipleII", "Perfect", "Pluperfect",
     "FutureI", "FutureII", "Imperatives", "UseWhen", "AvoidWhen",
     "TypicalCombinations", "TechnicalCombinations", "SimilarVerbs",
-    "Differences", "BookContext",
+    "Differences",
+    # "BookContext" is intentionally absent - see EXCLUDED_FIELDS.
 )
 
 for _verb_notetype in (
@@ -173,7 +184,8 @@ def fallback_mapping(notetype: str, field_order: list[str]) -> Mapping:
     build report flags every notetype that lands here so the mapping can be
     added deliberately.
     """
-    usable = [f for f in field_order if f not in NOISE_FIELDS]
+    usable = [f for f in field_order
+              if f not in NOISE_FIELDS and f not in EXCLUDED_FIELDS]
     front = usable[0] if usable else (field_order[0] if field_order else "Front")
     back = usable[1] if len(usable) > 1 else front
     return Mapping(
@@ -187,6 +199,38 @@ def fallback_mapping(notetype: str, field_order: list[str]) -> Mapping:
     )
 
 
+# Field names are written for the deck author, not the learner: "CoreMeaning",
+# "ParticipleII", "Part_of_Speech". These turn them into labels a reader
+# expects, splitting camel case and numbers while leaving roman numerals alone.
+_CAMEL_BOUNDARY = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+_ACRONYM_BOUNDARY = re.compile(r"(?<=[A-Z])(?=[A-Z][a-z])")
+_NUMBER_BOUNDARY = re.compile(r"(?<=[A-Za-z])(?=\d)")
+
+
+def humanise_label(name: str) -> str:
+    """Turn a notetype field name into a label for display."""
+    text = name.replace("_", " ")
+    text = _CAMEL_BOUNDARY.sub(" ", text)
+    text = _ACRONYM_BOUNDARY.sub(" ", text)
+    text = _NUMBER_BOUNDARY.sub(" ", text)
+
+    words = [w for w in text.split() if w]
+    if not words:
+        return name
+
+    out = [words[0][:1].upper() + words[0][1:]]
+    for word in words[1:]:
+        if word.isdigit():
+            # "Verb 01" reads better as "Verb 1".
+            out.append(str(int(word)))
+        elif word.isupper():
+            # Roman numerals and acronyms keep their case: "Participle II".
+            out.append(word)
+        else:
+            out.append(word.lower())
+    return " ".join(out)
+
+
 def resolve_extras(mapping: Mapping, field_order: list[str], used: set[str]) -> list[str]:
     """Which field names belong on the detail sheet, in display order."""
     if mapping.extras == "*":
@@ -198,6 +242,8 @@ def resolve_extras(mapping: Mapping, field_order: list[str], used: set[str]) -> 
         if name in used or name in mapping.extra_skip:
             continue
         if name in NOISE_FIELDS or name.startswith(NOISE_PREFIXES):
+            continue
+        if name in EXCLUDED_FIELDS:
             continue
         if name not in field_order or name in out:
             continue

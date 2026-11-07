@@ -113,6 +113,53 @@ void main() {
       }
     });
 
+    test('search results carry the deck they came from', () async {
+      final results = await db.search('arbeiten', limit: 20);
+      expect(results, isNotEmpty);
+      expect(results.every((c) => c.deckName != null && c.deckName!.isNotEmpty),
+          isTrue, reason: 'the same word appears in several decks');
+    });
+
+    test('an article is not repeated when the noun already carries it', () async {
+      final doubled = await db.raw.rawQuery(
+        "SELECT COUNT(*) AS n FROM content.card "
+        "WHERE lower(front) GLOB 'd[ei][rs] d[ei][rs] *' "
+        "   OR lower(back)  GLOB 'd[ei][rs] d[ei][rs] *'",
+      );
+      expect(doubled.first['n'], 0);
+    });
+
+    test('no card side is a bare placeholder', () async {
+      final rows = await db.raw.rawQuery(
+        "SELECT COUNT(*) AS n FROM content.card "
+        "WHERE trim(front) IN ('…','...','-','—') OR trim(back) IN ('…','...','-','—')",
+      );
+      expect(rows.first['n'], 0);
+    });
+
+    test('no shipped detail comes from the source textbook', () async {
+      final rows = await db.raw.rawQuery(
+        "SELECT COUNT(*) AS n FROM content.note "
+        // GLOB is case-sensitive and the quotes pin this to the JSON label,
+        // so ordinary words such as "Homepages" do not trip it.
+        r"""WHERE extras GLOB '*"BookContext"*' OR extras GLOB '*"Pages"*'""",
+      );
+      expect(rows.first['n'], 0,
+          reason: 'Pages and BookContext are excluded for rights reasons');
+    });
+
+    test('detail labels are human readable, not raw field names', () async {
+      final rows = await db.raw.rawQuery(
+        "SELECT extras FROM content.note WHERE extras IS NOT NULL LIMIT 2000",
+      );
+      for (final row in rows) {
+        final raw = row['extras']! as String;
+        expect(raw, isNot(contains('"CoreMeaning"')));
+        expect(raw, isNot(contains('"ParticipleII"')));
+        expect(raw, isNot(contains('"Part_of_Speech"')));
+      }
+    });
+
     test('search returns nothing for a blank query instead of everything', () async {
       expect(await db.search('   '), isEmpty);
       expect(await db.search(''), isEmpty);
@@ -275,7 +322,7 @@ void main() {
             reason: '${deck.slug} count disagrees with the deck row');
         sum += all[deck.id]!.total;
       }
-      expect(sum, 11583);
+      expect(sum, 11549);
     });
 
     test('reviews today counts only reviews from today', () async {

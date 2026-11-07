@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import '../../data/content_version.dart';
 import '../../services/speech_service.dart';
 import '../../state/settings_controller.dart';
+import 'licenses_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -117,6 +118,21 @@ class SettingsScreen extends StatelessWidget {
             subtitle: Text(
               'Every deck is bundled with the app. Nothing is uploaded and no '
               'account is needed.',
+            ),
+          ),
+          ListTile(
+            title: const Text('Licences and attribution'),
+            subtitle: const Text('Where the decks come from'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const LicensesScreen()),
+            ),
+          ),
+          ListTile(
+            title: const Text('Privacy'),
+            subtitle: const Text(
+              'This app collects nothing. It has no internet permission, so it '
+              'cannot send your data anywhere even if it tried.',
             ),
           ),
         ],

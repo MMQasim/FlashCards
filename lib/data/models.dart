@@ -63,6 +63,7 @@ class Flashcard {
     this.exampleEn,
     this.details = const [],
     this.tags,
+    this.deckName,
   });
 
   factory Flashcard.fromRow(Map<String, Object?> row) => Flashcard(
@@ -78,6 +79,7 @@ class Flashcard {
         exampleEn: _blankToNull(row['example_en'] as String?),
         details: _parseDetails(row['extras'] as String?),
         tags: _blankToNull(row['tags'] as String?),
+        deckName: _blankToNull(row['deck_name'] as String?),
       );
 
   final String uid;
@@ -97,6 +99,11 @@ class Flashcard {
   final String? exampleEn;
   final List<CardDetail> details;
   final String? tags;
+
+  /// Which deck this card belongs to. Only populated by queries that join the
+  /// deck table, such as search, where the same word appears in several decks
+  /// and the result list is meaningless without it.
+  final String? deckName;
 
   bool get promptIsGerman => frontLang == 'de';
 

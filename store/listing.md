@@ -88,18 +88,31 @@ data collection. Expect **Everyone / PEGI 3**.
 | Asset | Requirement | Status |
 |---|---|---|
 | App icon | 512 × 512 PNG, 32-bit | `store/icon-512.png` ✅ |
-| Feature graphic | 1024 × 500 PNG/JPG | **to do** |
-| Phone screenshots | 2–8, min 320 px, 16:9 or 9:16 | **to do** |
+| Feature graphic | 1024 × 500 PNG/JPG | `store/feature-graphic-1024x500.png` ✅ |
+| Phone screenshots | 2–8, min 320 px, 16:9 or 9:16 | `store/screenshots/` (5) ✅ |
+| Privacy policy URL | public page | `store/privacy-policy.html` — **needs hosting** |
 
-Screenshots worth taking: the deck list, a card mid-reveal with its
-conjugation table expanded, the rating buttons showing intervals, the progress
-screen with activity, and the search results.
+Screenshots were captured at 1080 × 2400 from a release build on a Pixel 8
+emulator: deck list, a revealed verb card with its conjugation details, the
+progress screen, search results, and settings. Regenerate with
+`python3 tools/generate_icons.py` for the graphics; screenshots are captured
+by hand from a running device.
+
+The privacy policy still needs a public URL. The simplest route is GitHub
+Pages on this repository: put `privacy-policy.html` in a `docs/` folder, enable
+Pages for `main` → `/docs`, and use the resulting URL in the Play listing.
 
 ## Before you submit
 
-- [ ] Confirm the licence of every deck in `tools/deck_sources.json` permits
-      redistribution in a published app.
-- [ ] Set a real `versionCode`/`versionName` in `pubspec.yaml`.
-- [ ] Build with a real upload key (`android/key.properties` present).
-- [ ] Install the `.aab` output on a physical device and study a full session,
-      including audio, before promoting past internal testing.
+- [x] Build with a real upload key (`android/key.properties` present).
+- [x] Feature graphic and screenshots prepared.
+- [x] Privacy policy written (`store/privacy-policy.md` / `.html`).
+- [x] Deck provenance recorded in `tools/deck_sources.json`; verbatim textbook
+      text excluded from the shipped content; CC BY-SA attribution shown in
+      the app under Settings → Licences.
+- [ ] **Host the privacy policy** and put the URL in the Play listing.
+- [ ] **Decide on the five textbook-derived decks.** Their word selection
+      follows "Menschen im Beruf: Bewerbungstraining". See `LICENSES.md`.
+- [ ] Set the `versionCode`/`versionName` you want in `pubspec.yaml`.
+- [ ] Install the `.aab` output on a **physical** device and study a full
+      session, including audio, before promoting past internal testing.

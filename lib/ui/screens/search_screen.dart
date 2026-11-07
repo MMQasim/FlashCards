@@ -98,10 +98,27 @@ class _SearchScreenState extends State<SearchScreen> {
                       final card = _results[index];
                       return ListTile(
                         title: Text(card.front, maxLines: 2, overflow: TextOverflow.ellipsis),
-                        subtitle: Text(
-                          card.back.replaceAll('\n', ' '),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              card.back.replaceAll('\n', ' '),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (card.deckName != null) ...[
+                              const SizedBox(height: 3),
+                              Text(
+                                card.deckName!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.75),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                         trailing: SpeakButton(
                           text: card.primarySpeech,

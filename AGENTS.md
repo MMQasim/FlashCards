@@ -5,7 +5,7 @@ Working notes for anyone — human or agent — changing this repository.
 ## What this is
 
 **DeutschCards** is an offline Android flashcard app for learning German. It
-ships 11,583 cards in 11 decks, built from Anki `.apkg` files, and pronounces
+ships 11,549 cards in 11 decks, built from Anki `.apkg` files, and pronounces
 German with the device's own text-to-speech engine. Scheduling is SM-2.
 
 - Package: `com.ekko.deutschcards`

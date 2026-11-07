@@ -14,6 +14,7 @@ mask and animate the outer area. Pre-26 devices get a single pre-masked bitmap.
 
 from __future__ import annotations
 
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -117,6 +118,88 @@ def adaptive_foreground(px: int) -> Image.Image:
     return img
 
 
+def fit_font(draw, text: str, max_width: int, start_size: int) -> ImageFont.FreeTypeFont:
+    """Largest font at or below [start_size] whose [text] fits [max_width].
+
+    Hardcoded point sizes silently overflow as soon as the wording changes, so
+    the banner measures instead of assuming.
+    """
+    size = start_size
+    while size > 8:
+        font = load_font(size)
+        box = draw.textbbox((0, 0), text, font=font)
+        if box[2] - box[0] <= max_width:
+            return font
+        size -= 2
+    return load_font(8)
+
+
+def card_count() -> int:
+    """Read the shipped card total, so the banner cannot drift from the app."""
+    db = REPO_ROOT / "assets" / "content" / "content.db"
+    with sqlite3.connect(f"file:{db}?mode=ro", uri=True) as con:
+        return con.execute("SELECT SUM(card_count) FROM deck").fetchone()[0]
+
+
+def feature_graphic() -> Image.Image:
+    """The 1024x500 banner Google Play shows at the top of the listing.
+
+    Play crops and scales this across surfaces, so everything meaningful stays
+    well inside the edges and nothing relies on the exact aspect ratio.
+    """
+    w, h = 1024, 500
+    margin = 64
+    img = Image.new("RGBA", (w, h), BRAND)
+    draw = ImageDraw.Draw(img)
+
+    # A soft diagonal wash stops the flat brand colour looking like a
+    # placeholder, without competing with the text.
+    wash = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    ImageDraw.Draw(wash).polygon(
+        [(0, h), (w * 0.62, 0), (w, 0), (w, h)], fill=(255, 255, 255, 14)
+    )
+    img.alpha_composite(wash)
+
+    # Card motif on the left, drawn on a square canvas and pasted.
+    motif_size = 300
+    motif = Image.new("RGBA", (motif_size, motif_size), (0, 0, 0, 0))
+    draw_cards(motif, scale=0.88)
+    img.alpha_composite(motif, (margin, (h - motif_size) // 2))
+
+    text_x = margin + motif_size + 52
+    avail = w - text_x - margin
+
+    title = "DeutschCards"
+    tagline = "Learn German offline"
+    detail = f"{card_count():,} cards  ·  spaced repetition  ·  audio"
+
+    title_font = fit_font(draw, title, avail, 76)
+    tag_font = fit_font(draw, tagline, avail, 34)
+    detail_font = fit_font(draw, detail, avail, 26)
+
+    # Stack the three lines and centre the block vertically.
+    def height_of(text, font):
+        box = draw.textbbox((0, 0), text, font=font)
+        return box[3] - box[1]
+
+    gap_a, gap_b = 20, 14
+    block = (height_of(title, title_font) + gap_a
+             + height_of(tagline, tag_font) + gap_b
+             + height_of(detail, detail_font))
+    y = (h - block) / 2
+
+    for text, font, fill, gap in (
+        (title, title_font, CARD_FRONT, gap_a),
+        (tagline, tag_font, (255, 255, 255, 228), gap_b),
+        (detail, detail_font, (255, 255, 255, 170), 0),
+    ):
+        box = draw.textbbox((0, 0), text, font=font)
+        draw.text((text_x - box[0], y - box[1]), text, font=font, fill=fill)
+        y += (box[3] - box[1]) + gap
+
+    return img
+
+
 def write(img: Image.Image, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     img.save(path, "PNG", optimize=True)
@@ -162,8 +245,11 @@ def main() -> int:
     store = REPO_ROOT / "store" / "icon-512.png"
     write(legacy_icon(512), store)
 
-    # A 1024px square is handy for feature graphics and press shots.
+    # A 1024px square is handy for press shots and other store surfaces.
     write(legacy_icon(1024), REPO_ROOT / "store" / "icon-1024.png")
+
+    # Play Console requires a 1024x500 feature graphic for the listing.
+    write(feature_graphic(), REPO_ROOT / "store" / "feature-graphic-1024x500.png")
     return 0
 
 
