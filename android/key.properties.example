@@ -1,0 +1,13 @@
+# Copy to android/key.properties and fill in. Never commit the real file or the
+# keystore: losing either means you can no longer update the app on Play, and
+# leaking them lets someone else publish as you.
+#
+# Create the upload keystore once:
+#
+#   keytool -genkey -v -keystore ~/deutschcards-upload.jks \
+#       -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+storePassword=
+keyPassword=
+keyAlias=upload
+storeFile=/absolute/path/to/deutschcards-upload.jks

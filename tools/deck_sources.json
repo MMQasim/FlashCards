@@ -1,0 +1,99 @@
+{
+  "comment": "Source .apkg files for the bundled content database. Paths may be absolute or relative to the repo root. Run tools/build_content.py after editing.",
+  "decks": [
+    {
+      "slug": "goethe-a1",
+      "name": "Goethe A1 Wordlist",
+      "level": "A1",
+      "description": "The official Goethe-Institut A1 vocabulary list with example sentences.",
+      "path": "/home/ekko/Downloads/Goethe_Institute_A1_Wordlist.apkg",
+      "sort_order": 10
+    },
+    {
+      "slug": "core-general",
+      "name": "Core Vocabulary: General",
+      "level": "A1-B1",
+      "description": "High-frequency everyday German, ordered by usefulness.",
+      "path": "/home/ekko/HomeGround/study/German/anki/German_3500_APKG_FIXED/German_01_General_1750_FIXED.apkg",
+      "sort_order": 20
+    },
+    {
+      "slug": "core-speaking",
+      "name": "Core Vocabulary: Speaking",
+      "level": "A2-B1",
+      "description": "Words for conversation and personal topics.",
+      "path": "/home/ekko/HomeGround/study/German/anki/German_3500_APKG_FIXED/German_03_Speaking_Personal_700_FIXED.apkg",
+      "sort_order": 30
+    },
+    {
+      "slug": "core-it-work",
+      "name": "Core Vocabulary: IT & Work",
+      "level": "B1-B2",
+      "description": "Technical and workplace vocabulary.",
+      "path": "/home/ekko/HomeGround/study/German/anki/German_3500_APKG_FIXED/German_02_IT_Work_1050_FIXED.apkg",
+      "sort_order": 40
+    },
+    {
+      "slug": "job-nouns",
+      "name": "Job Application: Nouns",
+      "level": "B1-B2",
+      "description": "Nouns for applications and interviews, with article and plural.",
+      "path": "/home/ekko/HomeGround/study/German/anki/Bewerbungstraining_Nouns.apkg",
+      "sort_order": 50
+    },
+    {
+      "slug": "job-verbs",
+      "name": "Job Application: Verbs",
+      "level": "B1-B2",
+      "description": "Verbs for applications, with full conjugation tables.",
+      "path": "/home/ekko/HomeGround/study/German/anki/Bewerbungstraining_Verbs.apkg",
+      "sort_order": 60
+    },
+    {
+      "slug": "job-adjectives",
+      "name": "Job Application: Adjectives",
+      "level": "B1-B2",
+      "description": "Adjectives for applications, with comparative and superlative.",
+      "path": "/home/ekko/HomeGround/study/German/anki/Bewerbungstraining_Adjectives.apkg",
+      "sort_order": 70
+    },
+    {
+      "slug": "beruf-b2-verbs",
+      "name": "Berufsdeutsch B2: Verbs in Context",
+      "level": "B2",
+      "description": "Professional verbs with usage notes, patterns and collocations.",
+      "path": "/home/ekko/HomeGround/study/German/anki/B2_Berufsdeutsch_Verben_im_Kontext_Vollstaendig.apkg",
+      "sort_order": 80
+    },
+    {
+      "slug": "beruf-it-verbs",
+      "name": "Berufsdeutsch: Verbs in IT Context",
+      "level": "B2",
+      "description": "Workplace verbs with IT-specific examples and collocations.",
+      "path": "/home/ekko/HomeGround/study/German/anki/Deutsch_im_Beruf_Verben_Gebrauch_IT_Kontext.apkg",
+      "sort_order": 90
+    },
+    {
+      "slug": "it-verbs-families",
+      "name": "IT Verb Families",
+      "level": "B2",
+      "description": "IT verbs grouped by stem, so prefixes are learned together.",
+      "path": "/home/ekko/HomeGround/study/German/German IT Verbs V6 — Separate Family Audio.apkg",
+      "sort_order": 100
+    },
+    {
+      "slug": "noun-adjective-families",
+      "name": "Noun & Adjective Families",
+      "level": "B1",
+      "description": "Noun, adjective, comparative and superlative learned as one family.",
+      "path": "/home/ekko/Downloads/German_Noun_Adjective_100.apkg",
+      "sort_order": 110
+    }
+  ],
+  "skipped": {
+    "/home/ekko/HomeGround/study/German/anki/Deutsch_im_Beruf_Verben_im_Kontext.apkg": "superseded by Deutsch_im_Beruf_Verben_Gebrauch_IT_Kontext (same 441 verbs, fewer fields)",
+    "/home/ekko/HomeGround/study/German/anki/German_3500_APKG_FIXED/German_All_3500_FIXED.apkg": "duplicate of the three German_3500 subdecks",
+    "/home/ekko/Downloads/Goethe_Institute_A1_Wordlist(1).apkg": "duplicate of Goethe_Institute_A1_Wordlist.apkg",
+    "/home/ekko/Downloads/German_Noun_Adjective_100_Audio.apkg": "same notes as German_Noun_Adjective_100.apkg, audio fields are empty"
+  }
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 11 and below (fullBackupContent).
+
+  review.db holds everything the user has earned: scheduling state, the review
+  log and preferences, so it is backed up and a new device restores their
+  progress.
+
+  Only this one file is listed. An <include> set makes everything else
+  implicitly excluded, which is what we want: content.db is 13 MB of read-only
+  deck content that is re-extracted from the app bundle on first launch, and
+  backing it up would waste the user's backup quota for nothing.
+-->
+<full-backup-content>
+    <include domain="file" path="review.db" />
+</full-backup-content>

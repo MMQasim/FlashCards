@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+ (dataExtractionRules). Same intent as backup_rules.xml: the
+  user's progress travels with them, the bundled deck content does not, because
+  it is re-extracted from the app bundle on first launch.
+
+  Listing review.db as the only include implicitly excludes everything else.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <include domain="file" path="review.db" />
+    </cloud-backup>
+    <device-transfer>
+        <include domain="file" path="review.db" />
+    </device-transfer>
+</data-extraction-rules>
