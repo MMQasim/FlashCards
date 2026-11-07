@@ -26,6 +26,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from anki_reader import AnkiCard, read_apkg  # noqa: E402
 from mappings import (  # noqa: E402
     MAPPINGS,
+    BuildContext,
+    CardParts,
     Mapping,
     fallback_mapping,
     humanise_label,
@@ -135,6 +137,7 @@ def card_uid(deck_slug: str, guid: str, ord_: int) -> str:
 
 def build_rows(deck_cfg: dict, collection, report: Counter, unknown: set[str]) -> list[dict]:
     slug = deck_cfg["slug"]
+    context = BuildContext(cards=collection.cards)
     rows: list[dict] = []
     seen_uids: set[str] = set()
     seen_pairs: set[tuple[str, str]] = set()
@@ -152,8 +155,15 @@ def build_rows(deck_cfg: dict, collection, report: Counter, unknown: set[str]) -
             report["skipped_unmapped_template"] += 1
             continue
 
-        front = join_fields(card, direction.front)
-        back = join_fields(card, direction.back)
+        built: CardParts | None = None
+        if mapping.build is not None:
+            built = mapping.build(card, card.ord, context)
+            if built is None:
+                report["skipped_by_builder"] += 1
+                continue
+
+        front = built.front if built else join_fields(card, direction.front)
+        back = built.back if built else join_fields(card, direction.back)
         if not front or not back:
             report["skipped_empty"] += 1
             continue
@@ -176,37 +186,52 @@ def build_rows(deck_cfg: dict, collection, report: Counter, unknown: set[str]) -
             continue
         seen_uids.add(uid)
 
-        used = set(direction.front) | set(direction.back)
-        for name in (mapping.example_de, mapping.example_en, mapping.speak_example):
-            if name:
-                used.add(name)
-        used |= set(mapping.speak)
-
         # A detail that merely restates the card's own front or back is noise;
         # "CoreMeaning: break off / discontinue" under the answer
         # "break off / discontinue" tells the learner nothing.
         shown = {front.casefold(), back.casefold()}
-        extras = [
-            {"label": humanise_label(name), "value": card.fields[name]}
-            for name in resolve_extras(mapping, card.field_order, used)
-            if card.fields.get(name, "").strip()
-            and card.fields[name].strip().casefold() not in shown
-        ]
 
-        speak_text = join_fields(card, mapping.speak) or (
-            front if direction.front_lang == "de" else back
-        )
-        speak_example = card.fields.get(mapping.speak_example, "") if mapping.speak_example else ""
-        example_de = card.fields.get(mapping.example_de, "") if mapping.example_de else ""
-        example_en = card.fields.get(mapping.example_en, "") if mapping.example_en else ""
+        if built:
+            extras = [
+                {"label": label, "value": value}
+                for label, value in built.extras
+                if value.strip() and value.strip().casefold() not in shown
+            ]
+            speak_text = built.speak
+            speak_example = built.speak_example
+            example_de = built.example_de
+            example_en = built.example_en
+            front_lang, back_lang = built.front_lang, built.back_lang
+        else:
+            used = set(direction.front) | set(direction.back)
+            for name in (mapping.example_de, mapping.example_en, mapping.speak_example):
+                if name:
+                    used.add(name)
+            used |= set(mapping.speak)
+
+            extras = [
+                {"label": humanise_label(name), "value": card.fields[name]}
+                for name in resolve_extras(mapping, card.field_order, used)
+                if card.fields.get(name, "").strip()
+                and card.fields[name].strip().casefold() not in shown
+            ]
+            speak_text = join_fields(card, mapping.speak) or (
+                front if direction.front_lang == "de" else back
+            )
+            speak_example = (
+                card.fields.get(mapping.speak_example, "") if mapping.speak_example else ""
+            )
+            example_de = card.fields.get(mapping.example_de, "") if mapping.example_de else ""
+            example_en = card.fields.get(mapping.example_en, "") if mapping.example_en else ""
+            front_lang, back_lang = direction.front_lang, direction.back_lang
 
         rows.append({
             "note_key": card.guid,
             "uid": uid,
             "front": front,
             "back": back,
-            "front_lang": direction.front_lang,
-            "back_lang": direction.back_lang,
+            "front_lang": front_lang,
+            "back_lang": back_lang,
             "search": fold(f"{front}\n{back}"),
             "sort_order": card.due if card.due and card.due < 10**6 else index,
             "note": {

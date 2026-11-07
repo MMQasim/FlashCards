@@ -102,7 +102,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              card.back.replaceAll('\n', ' '),
+                              card.back.replaceAll('\n', '  ·  '),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),

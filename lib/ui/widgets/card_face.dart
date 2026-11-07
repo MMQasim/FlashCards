@@ -24,7 +24,7 @@ class CardPrompt extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _LanguageChip(language: card.frontLang),
+        _LanguageChip(from: card.frontLang, to: card.backLang),
         const SizedBox(height: 20),
         Text(card.front, style: style, textAlign: TextAlign.center),
         if (card.promptIsGerman) ...[
@@ -45,22 +45,33 @@ class CardAnswer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final showSpeaker = !card.promptIsGerman;
+    // Speak the answer when the answer is the German side - true both for
+    // English → Deutsch cards and for word-family cards, which are German
+    // on both sides.
+    final showSpeaker = card.backLang == 'de';
+
+    // A list answer (a word family, for instance) reads as a list, not as a
+    // centred headline, and its speaker belongs beside the first line.
+    final isList = card.back.contains('\n');
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment:
+              isList ? MainAxisAlignment.start : MainAxisAlignment.center,
+          crossAxisAlignment:
+              isList ? CrossAxisAlignment.start : CrossAxisAlignment.center,
           children: [
             Flexible(
               child: Text(
                 card.back,
-                style: card.back.length > 120
-                    ? theme.textTheme.bodyLarge
-                    : theme.textTheme.headlineMedium,
-                textAlign: TextAlign.center,
+                style: isList
+                    ? theme.textTheme.titleMedium?.copyWith(height: 1.6)
+                    : card.back.length > 120
+                        ? theme.textTheme.bodyLarge
+                        : theme.textTheme.headlineMedium,
+                textAlign: isList ? TextAlign.start : TextAlign.center,
               ),
             ),
             if (showSpeaker)
@@ -198,14 +209,24 @@ class _DetailList extends StatelessWidget {
 }
 
 class _LanguageChip extends StatelessWidget {
-  const _LanguageChip({required this.language});
+  const _LanguageChip({required this.from, required this.to});
 
-  final String language;
+  final String from;
+  final String to;
+
+  /// Word-family cards are German on both sides, so a "Deutsch → English"
+  /// chip would be a lie; they get a single-language label instead.
+  String get _label => switch ((from, to)) {
+        ('de', 'en') => 'Deutsch → English',
+        ('en', 'de') => 'English → Deutsch',
+        ('de', 'de') => 'Deutsch',
+        ('en', 'en') => 'English',
+        _ => '${from.toUpperCase()} → ${to.toUpperCase()}',
+      };
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isGerman = language == 'de';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
@@ -213,7 +234,7 @@ class _LanguageChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
-        isGerman ? 'Deutsch → English' : 'English → Deutsch',
+        _label,
         style: theme.textTheme.labelSmall?.copyWith(
           color: theme.colorScheme.onSecondaryContainer,
           letterSpacing: 0.4,

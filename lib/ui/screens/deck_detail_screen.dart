@@ -238,7 +238,7 @@ class _CardRow extends StatelessWidget {
     return ListTile(
       title: Text(card.front, maxLines: 2, overflow: TextOverflow.ellipsis),
       subtitle: Text(
-        card.back.replaceAll('\n', ' '),
+        card.back.replaceAll('\n', '  ·  '),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: theme.textTheme.bodySmall

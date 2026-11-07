@@ -14,6 +14,7 @@ match the card counts in Anki.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, field as dc_field
 
 DE = "de"
@@ -45,6 +46,29 @@ class Direction:
 
 
 @dataclass
+class CardParts:
+    """A finished card, for notetypes that need more than field selection."""
+
+    front: str
+    back: str
+    front_lang: str = DE
+    back_lang: str = EN
+    speak: str = ""
+    speak_example: str = ""
+    example_de: str = ""
+    example_en: str = ""
+    extras: list[tuple[str, str]] = dc_field(default_factory=list)
+
+
+@dataclass
+class BuildContext:
+    """Whole-deck data a custom builder may need, computed once per deck."""
+
+    cards: list = dc_field(default_factory=list)
+    cache: dict = dc_field(default_factory=dict)
+
+
+@dataclass
 class Mapping:
     notetype: str
     directions: dict[int, Direction]
@@ -55,6 +79,11 @@ class Mapping:
     extras: tuple[str, ...] | str = ()    # explicit field list, or "*" for the rest
     extra_skip: tuple[str, ...] = ()
     reverse_is_recognition: bool = True
+
+    # Some notetypes store everything as one rendered page rather than in
+    # separate fields; those supply a builder instead of a field selection.
+    # Returning None drops the card.
+    build: Callable[[object, int, "BuildContext"], "CardParts | None"] | None = None
 
 
 def _d(front, back, front_lang, back_lang) -> Direction:
@@ -163,18 +192,26 @@ _register(Mapping(
 ))
 
 # --- IT verb families (newer deck, two notetypes) -------------------------
+# Both store their content as one rendered page in `Back`, so they are built by
+# tools/verb_families.py rather than by selecting fields. Imported as-is they
+# produce answers averaging 6,600 characters.
 _register(Mapping(
     notetype="German IT Verb Family V6 Separate Audio",
     directions={0: _d("Front", "Back", DE, EN)},
-    speak=("Front",),
-    extras="*",
+    build=lambda card, ord_, ctx: _verb_families().build_family(card, ord_, ctx),
 ))
 _register(Mapping(
     notetype="German IT Individual Verb V6 Audio Fields",
     directions={0: _d("Front", "Back", DE, EN)},
-    speak=("Front",),
-    extras="*",
+    build=lambda card, ord_, ctx: _verb_families().build_individual(card, ord_, ctx),
 ))
+
+
+def _verb_families():
+    """Imported lazily so mappings.py stays importable on its own."""
+    import verb_families
+
+    return verb_families
 
 
 def fallback_mapping(notetype: str, field_order: list[str]) -> Mapping:

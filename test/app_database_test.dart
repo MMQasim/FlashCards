@@ -160,6 +160,51 @@ void main() {
       }
     });
 
+    test('verb family cards ask for the family, not a wall of text', () async {
+      final deck = (await db.decks()).firstWhere((d) => d.slug == 'it-verbs-families');
+      final cards = await db.browseDeck(deck.id, limit: 500);
+      expect(cards, isNotEmpty);
+
+      // The source deck stored a whole rendered page as the answer; the worst
+      // card was 39,620 characters. Nothing should come close now.
+      final longest = cards.map((c) => c.card.back.length).reduce((a, b) => a > b ? a : b);
+      expect(longest, lessThan(400),
+          reason: 'answers must stay gradable at a glance');
+
+      final families = cards.where((c) => c.card.front.endsWith('word family'));
+      expect(families, isNotEmpty);
+      for (final family in families) {
+        // Every member is listed as "verb — meaning" on its own line.
+        expect(family.card.back, contains('—'));
+        expect(family.card.backLang, 'de');
+        expect(family.card.speakText, isNotEmpty);
+      }
+    });
+
+    test('individual IT verbs keep their conjugations as details', () async {
+      final results = await db.search('vertippen', limit: 10);
+      final verb = results.firstWhere((c) => c.front == 'vertippen');
+      expect(verb.back, 'to mistype');
+
+      final labels = verb.details.map((d) => d.label).toList();
+      expect(labels, contains('Verb family'));
+      expect(labels, contains('Separable'));
+      expect(labels, contains('Präsens'));
+      expect(labels, contains('Perfekt'));
+
+      final present = verb.details.firstWhere((d) => d.label == 'Präsens');
+      expect(present.value, contains('ich vertippe mich'));
+    });
+
+    test('a word family always has more than one member', () async {
+      final deck = (await db.decks()).firstWhere((d) => d.slug == 'it-verbs-families');
+      final cards = await db.browseDeck(deck.id, limit: 500);
+      for (final card in cards.where((c) => c.card.front.endsWith('word family'))) {
+        expect(card.card.back.split('\n').length, greaterThan(1),
+            reason: 'a one-verb family teaches nothing: ${card.card.front}');
+      }
+    });
+
     test('search returns nothing for a blank query instead of everything', () async {
       expect(await db.search('   '), isEmpty);
       expect(await db.search(''), isEmpty);
@@ -322,7 +367,7 @@ void main() {
             reason: '${deck.slug} count disagrees with the deck row');
         sum += all[deck.id]!.total;
       }
-      expect(sum, 11549);
+      expect(sum, 11530);
     });
 
     test('reviews today counts only reviews from today', () async {
