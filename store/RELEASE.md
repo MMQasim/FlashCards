@@ -80,6 +80,7 @@ answered before you can promote past internal testing.
 - **Health** — No.
 
 Draft answers and listing copy: `store/listing.md`.
+Release notes for every track: `store/release-notes.md`.
 
 ---
 
@@ -128,7 +129,7 @@ is missing — see Phase 6.
    signing key and your `.jks` becomes the *upload* key. Accept this: it means
    a lost upload key can be reset instead of ending the app.
 2. Upload the `.aab`.
-3. Release notes: "First internal build."
+3. Release notes: see `store/release-notes.md`.
 4. Add yourself as a tester under **Testers**, then **Save → Review release →
    Start rollout**.
 5. Install from the opt-in link on a **real Android phone**.
