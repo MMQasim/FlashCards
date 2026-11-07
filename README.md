@@ -65,8 +65,10 @@ flutter build appbundle --release
 
 Signing needs `android/key.properties`; copy `android/key.properties.example`
 and fill it in. Without it the build falls back to the debug key and warns —
-useful for local testing, not uploadable to Play. See
-[AGENTS.md](AGENTS.md#releasing) for the full release checklist.
+useful for local testing, not uploadable to Play.
+
+**[store/RELEASE.md](store/RELEASE.md)** is the step-by-step guide to getting
+this on Google Play, from creating the developer account through to production.
 
 ## How the content is built
 

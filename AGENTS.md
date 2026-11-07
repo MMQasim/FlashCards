@@ -132,4 +132,6 @@ flutter build apk --release --split-per-abi    # for sideloading
 Per-device download is about 19 MB on arm64. The `.aab` on disk is larger
 because it carries every ABI; Play splits it.
 
-Store assets live in `store/` (`icon-512.png` for the listing).
+Store assets live in `store/`. The full step-by-step publishing runbook,
+including the 14-day closed-testing requirement for new personal developer
+accounts, is **[store/RELEASE.md](store/RELEASE.md)**.
