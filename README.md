@@ -2,7 +2,7 @@
 
 An offline Android flashcard app for learning German, built with Flutter.
 
-11,530 cards across 11 decks — from Goethe-Institut A1 vocabulary through to
+11,549 cards across 11 decks — from Goethe-Institut A1 vocabulary through to
 B2 professional and IT German — with spaced repetition and pronunciation from
 the device's own text-to-speech engine.
 
@@ -43,7 +43,7 @@ the device's own text-to-speech engine.
 | Job Application: Adjectives | 758 | B1–B2 |
 | Berufsdeutsch B2: Verbs in Context | 882 | B2 |
 | Berufsdeutsch: Verbs in IT Context | 882 | B2 |
-| IT Verb Families | 469 | B2 |
+| IT Verb Families | 488 | B2 |
 | Noun & Adjective Families | 100 | B1 |
 
 Decks with two study directions contribute one card per direction, which is

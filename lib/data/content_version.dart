@@ -4,7 +4,7 @@
 // its copy of the database to decide whether to re-extract the asset.
 library;
 
-const String bundledContentVersion = '6db47d339089ed75';
+const String bundledContentVersion = 'db121715f4d9fd0f';
 const int bundledContentSchemaVersion = 1;
-const int bundledCardCount = 11530;
+const int bundledCardCount = 11549;
 const int bundledDeckCount = 11;

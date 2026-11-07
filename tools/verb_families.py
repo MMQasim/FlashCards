@@ -236,7 +236,7 @@ def build_family(card, ord_: int, ctx):
 
     stem = card.fields.get("Stem", "").strip()
     members = _members(card)
-    if not stem or len(members) < 2:
+    if not stem or not members:
         return None
 
     meanings = _meaning_index(ctx)
@@ -244,6 +244,19 @@ def build_family(card, ord_: int, ctx):
     for verb in members:
         meaning = meanings.get(verb)
         lines.append(f"{verb} — {meaning}" if meaning else verb)
+
+    extras = [("Verbs in this family", str(len(members)))]
+    if len(members) == 1:
+        # Mostly loan verbs such as "deployen" or "kopieren". Knowing that a
+        # verb takes no prefixes is worth learning in its own right: it answers
+        # the question "is there an einkopieren?" before the learner invents
+        # one. Scoped to this deck on purpose - a native verb like "löschen"
+        # does have prefixed forms in German generally, just not here.
+        extras.append((
+            "Prefixed forms",
+            "None in this deck. Learn this verb on its own rather than as "
+            "part of a prefix family.",
+        ))
 
     return CardParts(
         # Distinguished from the individual card for the same stem, which asks
@@ -256,5 +269,5 @@ def build_family(card, ord_: int, ctx):
         # Long-pressing the speaker reads the whole family, which is the point
         # of the card.
         speak_example=", ".join(members),
-        extras=[("Verbs in this family", str(len(members)))],
+        extras=extras,
     )

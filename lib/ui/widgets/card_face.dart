@@ -157,30 +157,44 @@ class _DetailList extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (inline.isNotEmpty)
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              for (final detail in inline)
-                Chip(
-                  visualDensity: VisualDensity.compact,
-                  label: RichText(
-                    text: TextSpan(
-                      style: theme.textTheme.bodySmall,
-                      children: [
-                        TextSpan(
-                          text: '${detail.label}: ',
-                          style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+          // Wrap hands its children unbounded width, so a long chip would lay
+          // out on one line and clip rather than wrapping. LayoutBuilder gives
+          // each label the real width to work with.
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // Chip padding plus its border; leaves the label its true space.
+              final maxLabelWidth = constraints.maxWidth - 32;
+              return Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final detail in inline)
+                    Chip(
+                      visualDensity: VisualDensity.compact,
+                      label: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: maxLabelWidth),
+                        child: RichText(
+                          text: TextSpan(
+                            style: theme.textTheme.bodySmall,
+                            children: [
+                              TextSpan(
+                                text: '${detail.label}: ',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                              TextSpan(
+                                text: detail.value,
+                                style: const TextStyle(fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
                         ),
-                        TextSpan(
-                          text: detail.value,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-            ],
+                ],
+              );
+            },
           ),
         if (blocks.isNotEmpty) ...[
           if (inline.isNotEmpty) const SizedBox(height: 12),

@@ -196,12 +196,24 @@ void main() {
       expect(present.value, contains('ich vertippe mich'));
     });
 
-    test('a word family always has more than one member', () async {
+    test('a one-verb family says so instead of looking incomplete', () async {
       final deck = (await db.decks()).firstWhere((d) => d.slug == 'it-verbs-families');
-      final cards = await db.browseDeck(deck.id, limit: 500);
-      for (final card in cards.where((c) => c.card.front.endsWith('word family'))) {
-        expect(card.card.back.split('\n').length, greaterThan(1),
-            reason: 'a one-verb family teaches nothing: ${card.card.front}');
+      final cards = await db.browseDeck(deck.id, limit: 600);
+      final families =
+          cards.where((c) => c.card.front.endsWith('word family')).toList();
+      expect(families.length, 99, reason: 'every family in the source is kept');
+
+      final singles = families.where((c) => !c.card.back.contains('\n')).toList();
+      expect(singles, isNotEmpty, reason: 'loan verbs such as deployen stand alone');
+      for (final single in singles) {
+        final labels = single.card.details.map((d) => d.label);
+        expect(labels, contains('Prefixed forms'),
+            reason: '${single.card.front} must explain why it has one member');
+      }
+
+      // The multi-member cards still list one verb per line.
+      for (final family in families.where((c) => c.card.back.contains('\n'))) {
+        expect(family.card.back.split('\n').length, greaterThan(1));
       }
     });
 
@@ -367,7 +379,7 @@ void main() {
             reason: '${deck.slug} count disagrees with the deck row');
         sum += all[deck.id]!.total;
       }
-      expect(sum, 11530);
+      expect(sum, 11549);
     });
 
     test('reviews today counts only reviews from today', () async {
